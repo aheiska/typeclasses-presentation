@@ -184,16 +184,36 @@ def sorted[B >: A](implicit ord: math.Ordering[B]): List[A]
 				<section>
 					<h2>What is math.Ordering</h2>
 					<p>
-						
+						A type class!
+					</p>
+					<h3>So what is Ordering[Int] or Ordering[Foo] then</h3>
+					<p>
+						A type class instance
+					</p>
+					<pre><code class="scala" data-trim contenteditable>
+object FooOrdering extends Ordering[Foo] {
+  def compare(a:Foo, b:Foo) = a.i compare b.i
+}
+					</code></pre>
+				</section>
+
+
+				<section>
+					<h2>Obligatiry theory slide</h2>
+					<p>
+						Typeclass can be though as a way to add more functionality to an existing class. But they can express more than that. Just like normal 
+						classes they can have an inheritance hierarcy and writing a sub instance can gives you combatibility with all algorithms requiring super-instance.
+					</p>
+					<p>
+						cats typeclass hierachy picture. laws. Monad, Monoid, Semigroup, Functor...
 					</p>
 				</section>
 
 
-
-
 				<section>
-					<h2></h2>
+					<h2>Good for anything else than sorting?</h2>
 					<p>
+						Serialization (argonaut). Laws -> Mapping a monoid instance grants freedom to use parallerism.
 					</p>
 					<h3>In code</h3>
 					<pre><code class="scala" data-trim contenteditable>
