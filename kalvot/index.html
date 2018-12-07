@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Typeclasses in Scala</title>
+
+		<meta name="description" content="Scala typeclasses introduction">
+		<meta name="author" content="(Anssi Heiska, Tuomas Peltola)">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Typeclasses, what, why and how</h1>
+					<h3>(in Scala)</h3>
+				</section>
+
+				<section>
+					<h2>Lets start with an example</h2>
+					<p>Sorting a list with scala</p>
+					<pre><code class="scala" data-trim contenteditable>
+@ List(1,6,9,3).sortWith((i, j) => i < j)
+res2: List[Int] = List(1, 3, 6, 9)
+					</code></pre>
+					<p>
+						Bit boiler platey but ok. We now have to write this lambda everywhere where we need to sort a list of ints.
+					</p>
+				</section>
+
+
+				<section>
+					<h2>Also works with classes</h2>
+					<pre><code class="scala" data-trim contenteditable>
+@ case class Foo(i: Int)
+defined class Foo
+
+@ List(Foo(3), Foo(8), Foo(5)).sortWith((f, b) => f.i < b.i)
+res4: List[Foo] = List(Foo(3), Foo(5), Foo(8))
+					</code></pre>
+					<p>
+						Same, but bit more error prone assuming order needs to same everywhere. 
+					</p>
+				</section>
+
+
+				<section>
+					<h2>Of course we could</h2>
+					<pre><code class="scala" data-trim contenteditable>
+@ case class Foo(i: Int) extends Ordered[Foo] { 
+  def compare(that: Foo) = this.i - that.i 
+}
+					</code></pre>
+				</section>
+
+
+				<section>
+					<h2>Also trivial with Java!</h2>
+					<h3>In code</h3>
+					<pre><code class="java" data-trim contenteditable>
+// my fingers hurt :(
+public class Foo implements Comparable<Foo> {
+    public final int i;
+	public Foo(int value) { 
+        i = value; 
+    }
+
+	public int compareTo(Foo f) { 
+		return i - f.i; 
+	}
+
+	public String toString() {
+		return "Foo(" + i + ")";
+	}
+}
+
+List<Foo> foos = new ArrayList<Foo>()
+foos.add(new Foo(12))
+foos.add(new Foo(3))
+foos.add(new Foo(8))
+
+foos // [Foo(12), Foo(3), Foo(8)]
+
+Collections.sort(foos)
+
+foos // [Foo(3), Foo(8), Foo(12)]
+					</code></pre>
+				</section>
+
+
+				<section>
+					<h2>Now quickly! Sort a list of java.awt.Rectangle</h2>
+					<p>
+						... Not difficult, but we are unable to sort it with Collections.sort! It does not implement Comparable! And there is no way to add interface to class outside our codebase!
+						<blockquote>
+							There is no generic way to sort List! It all depends on a T. 
+						</blockquote> 
+					</p>
+				</section>
+
+				<section>
+					<h2>What about Scala?</h2>
+					<p>
+						Scala suffers from same problem. There is no way to extend exisiting class. At runtime (yea yea, reflection does not exist :))
+					</p>
+					<blockquote>
+						This is bad. We have to do better than this.
+					</blockquote>
+					<p>
+						Would it be cool, if we could just sort a list? Something like:
+					</p>
+					<pre><code class="scala" data-trim contenteditable>
+List(1,8,4,7).giveMeASortedVersionOfThis
+					</code></pre>
+				</section>
+
+
+				<section>
+					<h2>Well actually, we can!</h2>
+					<pre><code class="scala" data-trim contenteditable>
+@ List(1,6,3,78).sorted
+res0: List[Int] = List(1, 3, 6, 78)
+
+@ case class Foo(i: Int)
+defined class Foo
+
+@ List(Foo(1), Foo(2)).sorted
+cmd2.sc:1: No implicit Ordering defined for ammonite.$sess.cmd1.Foo.
+val res2 = List(Foo(1), Foo(2)).sorted
+                                ^
+Compilation Failed
+					</code></pre>
+					<p>
+						What sourcery is this! And why it did not work with Foo?
+					</p>
+				</section>
+
+				<section>
+					<img src="img/magic.gif">
+					<br>
+					<small>(type classes!)</small>
+				</section>
+
+				<section>
+					<h2>What happened there</h2>
+					<p>
+						Real signature of List.sorted is:
+					</p>
+					<pre><code class="scala" data-trim contenteditable>
+def sorted[B >: A](implicit ord: math.Ordering[B]): List[A]
+					</code></pre>
+					<p>What is that implicit parameter. OMG Scala is so complicated!</p>
+				</section>
+
+				<section>
+					<h2>What is math.Ordering</h2>
+					<p>
+						
+					</p>
+				</section>
+
+
+
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

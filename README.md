@@ -1,2 +1,6 @@
-# typeclasses-presentation
-Slides and examples for typeclasses presentation
+# Scala coaching circle  -  Typeclasses
+
+Typeclasess, typeclasses everywhere.
+
+
+
