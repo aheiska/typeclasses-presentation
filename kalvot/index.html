@@ -257,6 +257,12 @@ trait DecodeJson[A] {
 	def decode(c: HCursor): DecodeResult[A]
 	...
 }
+// Intended usage:
+Parse.decodeEither[Foo]("""{"id": 1, "bars": ["a", "b"]}""")
+// res14: Either[String, Foo] = Right(Foo(FooId(1L), List("a", "b")))
+Parse.decodeEither[Foo]("""{"id": 1, "bar": ["a", "b"]}""")
+// res15: Either[String, Foo] = Left("Attempt to decode value on failed cursor.: CursorHistory(List(El(CursorOpDownField(bars),false)))")
+
 					</code></pre>
 				</section>
 
@@ -284,6 +290,16 @@ implicit val fooDecode = DecodeJson { json =>
 // implicit val fooDecode = DecodeJson.derive[Foo]
 // implicit val fooDecode = jdecode2l(Foo.apply)("id", "bars")
 					</code></pre>
+				</section>
+
+				<section>
+					<h2>Summary</h2>
+					<p>
+						Typeclasses are common and you are probably using them already. In Scala they are typed implicit parameters and as pattern separate implementation from type.
+					</p>
+					<p>
+						<small>They are not magic, sorry</small>
+					</p>
 				</section>
 
 				<section>
