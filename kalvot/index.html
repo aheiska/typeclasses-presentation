@@ -129,11 +129,35 @@ implicit val fooOrdering = new Ordering[Foo] {
 				<section>
 					<h2>Good for anything else than sorting?</h2>
 					<p>
-						Serialization (argonaut). Laws -> Mapping a monoid instance grants freedom to use parallerism.
+						For plenty of things! Even for things that would be difficult to express with classes or interfaces.
 					</p>
-					<h3>In code</h3>
-					<pre><code class="scala" data-trim contenteditable>
-					</code></pre>
+				</section>
+
+				<section>
+					<h2>More generic algorhitms</h2>
+					<p>
+						Using typeclasses one does not need to have access to the original types to be able to make them implement the typeclass interface.
+					</p>
+				</section>
+
+				<section>
+					<h2>Multiple instances for same type</h2>
+					<p>
+						(This would be impossible with interfaces / traits)
+					</p>
+					<p>
+						There can also be multiple implementations (in scala), but that is not something that should actually be used. (This can be confusing and error prone, use with care).
+					</p>
+				</section>
+
+				<section>
+					<h2>More expressive power</h2>
+					<p>
+						Typeclasses enable more complex abstractions which would be difficult and clunky to accomplish using classes.
+					</p>
+					<p>
+						With typeclasses it is possible to pair operation and a type with an abstract way. (E.g. Monoid)
+					</p>
 				</section>
 
 				<section>
@@ -171,6 +195,25 @@ implicit val fooOrdering = new Ordering[Foo] {
 					<pre><code class="scala" data-trim contenteditable>
 					</code></pre>
 				</section>
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
+				<section>
+					<h2></h2>
+					<p>
+					</p>
+					<h3>In code</h3>
+					<pre><code class="scala" data-trim contenteditable>
+					</code></pre>
+				</section>
+
 
 				<section>
 					<h2>Sources</h2>
