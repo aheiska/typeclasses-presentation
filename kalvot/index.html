@@ -74,7 +74,7 @@ Compilation Failed
 				<section>
 					<h2>What happened there</h2>
 					<p>
-						Real signature of List.sorted is:
+						Signature of List.sorted is:
 					</p>
 					<pre><code class="scala" data-trim contenteditable>
 def sorted[B >: A](implicit ord: math.Ordering[B]): List[A]
@@ -246,62 +246,44 @@ def signOfTheTimes[T: Numeric](t: T): T = -(t.abs) * t
 				</section>
 
 
-
 				<section>
 					<h2>Typeclasses in practice</h2>
 					<p>
 						We use our beloved argonaut as an expample.
 					</p>
-					<h3>In code</h3>
+					<p>
+						Argonaut uses typeclasses heavily. Both DecodeJson and EncodeJson are typeclasses that define Json coding for a specific type. They are also Monads and DecodeResult is a MonadError. While they do not have Monad instance, they have all operations of those typeclasses. (So implementing instance for them would be trivial.)
+					</p>
+				</section>
+
+				<section>
+					<h2>DecodeJson</h2>
+					<p>
+						(We look at this, because it is more interesting than EncodeJson.)
+					</p>
+					<h3>Strongly typed key for a class</h3>
 					<pre><code class="scala" data-trim contenteditable>
+case class FooId(id: Long) extends AnyVal
+
+implicit val fooIdDecode = implicitly[DecodeJson[Long]].map(FooId(_))
 					</code></pre>
 				</section>
 
 				<section>
-					<h2></h2>
-					<p>
-					</p>
-					<h3>In code</h3>
+					<h2>Deserializing a case class</h2>
 					<pre><code class="scala" data-trim contenteditable>
+case class Foo(id: FooId, bars: Seq[String])
+
+implicit val barDecoder = DecodeJson { json => 
+  for {
+    id   <- (json --\ "id").as[FooId]
+    bars <- (json --\ "bars").as[Seq[String]]
+  } yield Foo(id, bars)
+}
+// implicit val barDecode = DecodeJson.derive[Foo]
+// implicit val barDecode = jdecode2l(Foo.apply)("id", "bars")
 					</code></pre>
 				</section>
-
-				<section>
-					<h2></h2>
-					<p>
-					</p>
-					<h3>In code</h3>
-					<pre><code class="scala" data-trim contenteditable>
-					</code></pre>
-				</section>
-
-				<section>
-					<h2></h2>
-					<p>
-					</p>
-					<h3>In code</h3>
-					<pre><code class="scala" data-trim contenteditable>
-					</code></pre>
-				</section>
-
-				<section>
-					<h2></h2>
-					<p>
-					</p>
-					<h3>In code</h3>
-					<pre><code class="scala" data-trim contenteditable>
-					</code></pre>
-				</section>
-
-				<section>
-					<h2></h2>
-					<p>
-					</p>
-					<h3>In code</h3>
-					<pre><code class="scala" data-trim contenteditable>
-					</code></pre>
-				</section>
-
 
 				<section>
 					<h2>Sources</h2>
