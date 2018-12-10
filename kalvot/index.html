@@ -61,20 +61,20 @@ val res2 = List(Foo(1), Foo(2)).sorted
 Compilation Failed
 					</code></pre>
 					<p>
-						What sourcery is this! And why it did not work with Foo?
+						What sourcery is this! And why it did not work with <code>Foo</code>?
 					</p>
 				</section>
 
 				<section>
 					<img src="img/magic.gif">
 					<br>
-					<small>(type classes!)</small>
+					<small>(typeclasses!)</small>
 				</section>
 
 				<section>
 					<h2>What happened there</h2>
 					<p>
-						Signature of List.sorted is:
+						Signature of <code>List.sorted</code> is:
 					</p>
 					<pre><code class="scala" data-trim contenteditable>
 def sorted[B >: A](implicit ord: math.Ordering[B]): List[A]
@@ -83,13 +83,13 @@ def sorted[B >: A](implicit ord: math.Ordering[B]): List[A]
 				</section>
 
 				<section>
-					<h2>What is math.Ordering</h2>
+					<h2>What is math.Ordering?</h2>
 					<p>
-						A type class!
+						A typeclass!
 					</p>
-					<h4>So what is Ordering[Int] or Ordering[Foo] then</h4>
+					<h5>So what is Ordering[Int] or Ordering[Foo] then?</h5>
 					<p>
-						A type class instance
+						A typeclass instance
 					</p>
 					<pre><code class="scala" data-trim contenteditable>
 implicit val fooOrdering = new Ordering[Foo] {
@@ -106,7 +106,7 @@ implicit val fooOrdering = new Ordering[Foo] {
 					<h2>Obligatory theory slide</h2>
 					<p>
 						Typeclass can be though as a way to add more functionality to an existing class. But they can express more than that. Just like normal 
-						classes they can have an inheritance hierarcy and writing a sub instance can gives you combatibility with all algorithms requiring super-instance.
+						classes they can have an inheritance hierarcy and writing a sub instance gives you combatibility with all algorithms requiring the super-instance.
 					</p>
 				</section>
 
@@ -114,17 +114,6 @@ implicit val fooOrdering = new Ordering[Foo] {
 					<h2>Typeclasses in category theory</h2>
 					<img src="https://cdn.rawgit.com/tpolecat/cats-infographic/master/cats.svg" />
 				</section>
-
-				<section>s
-					<h2>Obligatory theory slide 2</h2>
-					<p>
-						Nothing forces it, but it is common, that typeclasses hold some laws. 
-					</p>
-					<h3>In code</h3>
-					<pre><code class="scala" data-trim contenteditable>
-					</code></pre>
-				</section>
-
 
 				<section>
 					<h2>Good for anything else than sorting?</h2>
@@ -134,24 +123,21 @@ implicit val fooOrdering = new Ordering[Foo] {
 				</section>
 
 				<section>
-					<h2>More generic algorhitms</h2>
 					<p>
-						Using typeclasses one does not need to have access to the original types to be able to make them implement the typeclass interface.
+						By using typeclasses one does not need to have access to the original types to be able to make them implement the typeclass interface.
 					</p>
 				</section>
 
 				<section>
-					<h2>Multiple instances for same type</h2>
+					<p>
+						There can also be multiple implementations (in scala), but that is not something that should only be used with care.
+					</p>
 					<p>
 						(This would be impossible with interfaces / traits)
 					</p>
-					<p>
-						There can also be multiple implementations (in scala), but that is not something that should actually be used. (This can be confusing and error prone, use with care).
-					</p>
 				</section>
 
 				<section>
-					<h2>More expressive power</h2>
 					<p>
 						Typeclasses enable more complex abstractions which would be difficult and clunky to accomplish using classes.
 					</p>
@@ -161,9 +147,9 @@ implicit val fooOrdering = new Ordering[Foo] {
 				</section>
 
 				<section>
-					<h2>What it actually looks like in Scala</h2>
+					<h2>Typeclasses in Scala</h2>
 					<p>
-						Typeclasses are expressed as a trait with at least one type parameter and typeclass instances are implicit vals. (And usually some helper machinery to ease with syntax.) 
+						Typeclasses are expressed as a trait with at least one type parameter. Typeclass instances are implicit vals. (And usually some helper machinery to ease with syntax.) 
 					</p>
 					<p>
 						Usage of a typeclass is an implicit parameter.
@@ -198,7 +184,7 @@ implicit val NumericDouble: Numeric[Double] = new Numeric[Double] {
   def times(x: Double, y: Double): Double = x * y
   def negate(x: Double): Double = -x
   def zero: Double = 0.0
-  def compare(x: Double, y: Double): Int = java.lang.Double.compare(x, y)
+  def compare(x: Double, y: Double): Int = JDouble.compare(x, y)
 
   // optimised
   override def lt(x: Double, y: Double): Boolean = x < y
@@ -249,23 +235,38 @@ def signOfTheTimes[T: Numeric](t: T): T = -(t.abs) * t
 				<section>
 					<h2>Typeclasses in practice</h2>
 					<p>
-						We use our beloved argonaut as an expample.
+						We use our beloved argonaut as an example.
 					</p>
 					<p>
-						Argonaut uses typeclasses heavily. Both DecodeJson and EncodeJson are typeclasses that define Json coding for a specific type. They are also Monads and DecodeResult is a MonadError. While they do not have Monad instance, they have all operations of those typeclasses. (So implementing instance for them would be trivial.)
+						Argonaut uses typeclasses heavily. Both <code>DecodeJson</code> and <code>EncodeJson</code> are typeclasses that define JSON coding for a specific type. 
+					</p>
+					<p>
+						They are also <code>Monads</code> and <code>DecodeResult</code> is a <code>MonadError</code>. While they do not have typeclass instances, they have all operations of those typeclasses.
 					</p>
 				</section>
 
 				<section>
 					<h2>DecodeJson</h2>
 					<p>
-						(We look at this, because it is more interesting than EncodeJson.)
+						<code>DecodeJson</code> is Argonauts interface to deserializing data from JSON to Scala.
 					</p>
-					<h3>Strongly typed key for a class</h3>
+					<pre><code class="scala" data-trim contenteditable>
+trait DecodeJson[A] {
+	...
+	def decodeJson(j: Json): DecodeResult[A] = decode(j.hcursor)
+	def decode(c: HCursor): DecodeResult[A]
+	...
+}
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Deserializing strongly typed id</h2>
 					<pre><code class="scala" data-trim contenteditable>
 case class FooId(id: Long) extends AnyVal
 
-implicit val fooIdDecode = implicitly[DecodeJson[Long]].map(FooId(_))
+implicit val fooIdDecode = DecodeJson.of[Long].map(FooId(_))
+// implicit val fooIdDecode = implicitly[DecodeJson[Long]].map(FooId(_))
 					</code></pre>
 				</section>
 
@@ -274,14 +275,14 @@ implicit val fooIdDecode = implicitly[DecodeJson[Long]].map(FooId(_))
 					<pre><code class="scala" data-trim contenteditable>
 case class Foo(id: FooId, bars: Seq[String])
 
-implicit val barDecoder = DecodeJson { json => 
+implicit val fooDecode = DecodeJson { json => 
   for {
     id   <- (json --\ "id").as[FooId]
     bars <- (json --\ "bars").as[Seq[String]]
   } yield Foo(id, bars)
 }
-// implicit val barDecode = DecodeJson.derive[Foo]
-// implicit val barDecode = jdecode2l(Foo.apply)("id", "bars")
+// implicit val fooDecode = DecodeJson.derive[Foo]
+// implicit val fooDecode = jdecode2l(Foo.apply)("id", "bars")
 					</code></pre>
 				</section>
 
