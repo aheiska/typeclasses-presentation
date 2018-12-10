@@ -279,12 +279,12 @@ implicit val fooIdDecode = DecodeJson.of[Long].map(FooId(_))
 				<section>
 					<h2>Deserializing a case class</h2>
 					<pre><code class="scala" data-trim contenteditable>
-case class Foo(id: FooId, bars: Seq[String])
+case class Foo(id: FooId, bars: List[String])
 
 implicit val fooDecode = DecodeJson { json => 
   for {
     id   <- (json --\ "id").as[FooId]
-    bars <- (json --\ "bars").as[Seq[String]]
+    bars <- (json --\ "bars").as[List[String]]
   } yield Foo(id, bars)
 }
 // implicit val fooDecode = DecodeJson.derive[Foo]
